@@ -18,6 +18,8 @@ if __name__ == "__main__":
     a0 = Agent(m0, p0)
 
     a0.value_iteration()
+    m0.show_result_matrix()
+    a0.show_directions()
 
     # for i in range(1):
     #     a0.act()

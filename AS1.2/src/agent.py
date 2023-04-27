@@ -6,7 +6,8 @@ class Agent:
         self.maze = maze_object
         self.state = self.maze.start_point
         self.policy = policy_object
-        self.possible_actions = list(self.maze.actions.values())
+        self.action_values = list(self.maze.actions.values())
+        self.action_keys = list(self.maze.actions.keys())
         self.gamma = self.policy.gamma
         self.ended = False
 
@@ -20,12 +21,12 @@ class Agent:
         @return: nested list of coordinates
         """
         neighbouring_state_coordinates = []
-        for act in self.possible_actions:
-            nb = [state_coordinate[0] + act[0], state_coordinate[1] + act[1]]
+        for i in range(len(self.action_values)):
+            nb = [state_coordinate[0] + self.action_values[i][0], state_coordinate[1] + self.action_values[i][1]]
             try:
                 check_if_inside_maze = self.maze.environment[nb[0]][nb[1]]
                 if nb[0] >= 0 and nb[1] >= 0:
-                    neighbouring_state_coordinates.append(nb)
+                    neighbouring_state_coordinates.append([nb, self.action_keys[i]])
             except IndexError:
                 pass
 
@@ -61,8 +62,7 @@ class Agent:
 
             iter_count += 1
 
-        print(f"\nThe result below took '{iter_count}' total iterations (including iteration 0).")
-        self.maze.print_detailed_result_matrix()
+        print(f"\nValue Iteration took '{iter_count}' total iterations (including iteration 0).")
 
     def value_function(self, pos):
         """
@@ -76,8 +76,8 @@ class Agent:
         if not self.maze.environment[pos[0]][pos[1]].terminal:
             values = []
             for nb in self.get_reachable_states(pos):
-                nb_value = self.maze.environment[nb[0]][nb[1]].value
-                nb_reward = self.maze.environment[nb[0]][nb[1]].reward
+                nb_value = self.maze.environment[nb[0][0]][nb[0][1]].value
+                nb_reward = self.maze.environment[nb[0][0]][nb[0][1]].reward
                 values.append((nb_reward + (self.gamma * nb_value)))
             return max(values)
         else:
@@ -89,5 +89,50 @@ class Agent:
         'act' in the maze environment.
         :@return: void
         """
-        action = self.policy.select_action(self.possible_actions)
+        action = self.policy.select_action(self.action_values)
         self.state = self.maze.step(self.state, action)
+
+    def show_directions(self):
+        """
+        This function prints a detailed overview of the directions the agent would go in
+        the maze environment should the agent not be randomly performing actions and follow
+        the optimal policy by choosing the best route in each state.
+        :@return: void
+        """
+        print("\nDirections: ")
+        for row in range(len(self.maze.environment)):
+            line = []
+            for col in range(len(self.maze.environment[row])):
+                if self.maze.environment[row][col].terminal:
+                    direction = "X"
+                else:
+                    neighbours = self.get_reachable_states([row, col])
+                    routes = {}
+                    for nb in neighbours:
+                        own_value = self.maze.environment[row][col].value
+                        nb_value = self.maze.environment[nb[0][0]][nb[0][1]].value
+                        nb_reward = self.maze.environment[nb[0][0]][nb[0][1]].reward
+                        # If the state is terminal and has a higher or equal reward than the value of
+                        # the current state, remove all other routes and go straight for that state.
+                        if self.maze.environment[nb[0][0]][nb[0][1]].terminal and nb_reward >= own_value:
+                            routes = {nb[1]: nb_reward}
+                            break
+                        else:
+                            # Check if there are multiple states (directions) with the same values
+                            # and if there is a new highest value, remove the lower values.
+                            if len(routes) < 1:
+                                routes[nb[1]] = nb_value
+                            else:
+                                routes2 = routes.copy()
+                                for item in routes2:
+                                    if routes[item] == nb_value:
+                                        routes[nb[1]] = nb_value
+                                    elif routes[item] < nb_value:
+                                        routes.pop(item)
+                                        routes[nb[1]] = nb_value
+
+                    direction = ""
+                    for i in routes:
+                        direction += f"{i}"
+                line.append(f"{direction}")
+            print('| {:2} | {:^2} | {:>2} | {:<2} |'.format(*line))

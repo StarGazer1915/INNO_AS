@@ -10,10 +10,10 @@ class Maze:
         self.start_point = start_point
         self.environment = np.zeros((self.maze_x_size, self.maze_y_size), dtype=object)
         self.actions = {
-            "0": [0, -1],  # Left
-            "1": [0, +1],  # Right
-            "2": [-1, 0],  # Up
-            "3": [+1, 0]   # Down
+            "L": [0, -1],   # Left
+            "R": [0, +1],   # Right
+            "U": [-1, 0],   # Up
+            "D": [+1, 0]    # Down
             }
         self.setup_environment()
 
@@ -54,7 +54,7 @@ class Maze:
         except IndexError:
             return state
 
-    def print_detailed_result_matrix(self):
+    def show_result_matrix(self):
         """
         This function prints a detailed overview of the current
         values and rewards of each point in the maze environment.

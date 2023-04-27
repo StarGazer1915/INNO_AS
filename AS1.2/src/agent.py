@@ -135,4 +135,4 @@ class Agent:
                     for i in routes:
                         direction += f"{i}"
                 line.append(f"{direction}")
-            print('| {:2} | {:^2} | {:>2} | {:<2} |'.format(*line))
+            print('| {:2} | {:2} | {:2} | {:2} |'.format(*line))

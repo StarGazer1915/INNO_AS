@@ -11,8 +11,9 @@ if __name__ == "__main__":
             [-1, -1, -1, -1],
             [[10, True], -2, -1, -1]
         ], dtype=object)
+    start_position = [3, 2]
 
-    m0 = Maze(reward_matrix, [3, 2])
+    m0 = Maze(reward_matrix, start_position)
     p0 = Policy("random", 1.0)
     a0 = Agent(m0, p0)
 

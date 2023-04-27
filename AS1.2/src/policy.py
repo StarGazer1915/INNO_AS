@@ -7,6 +7,12 @@ class Policy:
         self.gamma = gamma
 
     def select_action(self, actions):
+        """
+        This function decides the action that the agent is going
+        to take within the maze environment.
+        @param actions: nested list
+        @return: list [y, x]
+        """
         if self.type.lower() == "random":
             return choice(actions)
         else:

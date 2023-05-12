@@ -2,8 +2,9 @@ from random import choice
 
 
 class Policy:
-    def __init__(self, policy_type="", gamma=1.):
+    def __init__(self, policy_type="", gamma=1., p_matrix=None):
         self.type = policy_type
+        self.p_matrix = p_matrix
         self.gamma = gamma
 
     def select_action(self, actions):

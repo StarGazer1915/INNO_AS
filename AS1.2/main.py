@@ -20,7 +20,6 @@ if __name__ == "__main__":
     a0.value_iteration()
     m0.show_matrices()
     a0.show_policy()
-    # a0.show_directions()
 
     # for i in range(1):
     #     a0.act()

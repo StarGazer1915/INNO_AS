@@ -24,23 +24,26 @@ class Agent:
             state_value_deltas = []
             for row in range(len(self.maze.value_matrix)):
                 for col in range(len(self.maze.value_matrix[row])):
-                    # Calculate value
-                    old_value = self.maze.value_matrix[row][col]
-                    neighbours = self.maze.get_reachable_states([row, col])
-                    new_value = self.value_function([row, col], neighbours)
-                    new_value_matrix[row][col] = new_value
+                    if not self.maze.terminal_matrix[row][col]:
+                        # Calculate value
+                        old_value = self.maze.value_matrix[row][col]
+                        neighbours = self.maze.get_reachable_states([row, col])
+                        new_value = self.value_function([row, col], neighbours)
+                        new_value_matrix[row][col] = new_value
 
-                    # Calculate delta
-                    new_delta = old_value - new_value
-                    if new_delta < 0:
-                        new_delta = -new_delta
-                    state_value_deltas.append(new_delta)
+                        # Calculate delta
+                        new_delta = old_value - new_value
+                        if new_delta < 0:
+                            new_delta = -new_delta
+                        state_value_deltas.append(new_delta)
 
-                    # Update policy matrix with (new) route
-                    self.update_policy([row, col], neighbours)
+                        # Update policy matrix with (new) route
+                        self.update_policy([row, col], neighbours)
+                    else:
+                        self.policy.p_matrix[row][col] = "T"
 
             delta = max(state_value_deltas)
-            if delta > 0:  # Update all the old values with the new values for the next iteration (if there is one).
+            if delta > 0:  # Update all the old values with the new values for the next iteration if there will be one.
                 self.maze.value_matrix = new_value_matrix
 
             iter_count += 1
@@ -54,18 +57,16 @@ class Agent:
         This function is GREEDY because it always returns the most optimal value for the agent if
         the neighbouring state isn't a terminal state. Note: 'nb' means neighbour.
         @param pos: list [y, x]
+        @param neighbours: nested list
         @return: float
         """
-        if not self.maze.terminal_matrix[pos[0]][pos[1]]:
-            values = []
-            for nb in neighbours:
-                nb_value = self.maze.value_matrix[nb[0][0]][nb[0][1]]
-                nb_reward = self.maze.reward_matrix[nb[0][0]][nb[0][1]]
-                values.append((nb_reward + (self.gamma * nb_value)))
+        values = []
+        for nb in neighbours:
+            nb_value = self.maze.value_matrix[nb[0][0]][nb[0][1]]
+            nb_reward = self.maze.reward_matrix[nb[0][0]][nb[0][1]]
+            values.append((nb_reward + (self.gamma * nb_value)))
 
-            return max(values)
-        else:
-            return 0.0
+        return max(values)
 
     def update_policy(self, current_pos, neighbours):
         best = []
@@ -74,7 +75,6 @@ class Agent:
             nb_value = self.maze.value_matrix[nb[0][0]][nb[0][1]]
             nb_reward = self.maze.reward_matrix[nb[0][0]][nb[0][1]]
             nb_action_value = nb_value + nb_reward
-            # print(f"{nb_action_value} = {nb_value} + {nb_reward}      {nb}")
             if nb_action_value > highest_value:
                 best = []
                 highest_value = nb_action_value
@@ -82,8 +82,6 @@ class Agent:
             elif nb_action_value == highest_value:
                 best.append(nb)
 
-        print(best)
-        print("".join([i[1] for i in best]))
         self.policy.p_matrix[current_pos[0]][current_pos[1]] = "".join([i[1] for i in best])
 
     def act(self):

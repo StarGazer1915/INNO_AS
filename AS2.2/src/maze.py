@@ -1,5 +1,5 @@
 import numpy as np
-
+from random import randrange
 
 class Maze:
     def __init__(self, maze_matrix, start_point):
@@ -7,7 +7,6 @@ class Maze:
         self.start_point = start_point
         self.maze_y_size = len(maze_matrix)
         self.maze_x_size = len(maze_matrix[0])
-        self.value_matrix = np.zeros((self.maze_x_size, self.maze_y_size), dtype=float)
         self.reward_matrix = np.zeros((self.maze_x_size, self.maze_y_size), dtype=float)
         self.terminal_matrix = np.zeros((self.maze_x_size, self.maze_y_size), dtype=bool)
         self.actions = {
@@ -47,7 +46,7 @@ class Maze:
         for i in range(len(self.action_values)):
             nb = [state_coordinate[0] + self.action_values[i][0], state_coordinate[1] + self.action_values[i][1]]
             try:
-                check_if_inside_maze = self.value_matrix[nb[0]][nb[1]]
+                check_if_inside_maze = self.reward_matrix[nb[0]][nb[1]]
                 if nb[0] >= 0 and nb[1] >= 0:
                     neighbouring_state_coordinates.append([nb, self.action_keys[i]])
             except IndexError:
@@ -63,21 +62,24 @@ class Maze:
         then the function will make the agent stay on the same state (coordinate).
         @param state: list [y, x]
         @param action: list [y, x]
-        @return: list [y, x]
+        @return: list [y, x], bool
         """
         new_state = [state[0] + action[0], state[1] + action[1]]
+        state_terminal = self.terminal_matrix[state[0]][state[1]]
+        state_reward = self.reward_matrix[state[0]][state[1]]
         try:
-            check_if_inside_maze = self.value_matrix[new_state[0]][new_state[1]]
+            check_if_inside_maze = self.reward_matrix[new_state[0]][new_state[1]]
             if new_state[0] < 0 or new_state[1] < 0:
-                return state
+                return state, state_terminal, state_reward
             else:
-                return new_state
+                return new_state, self.terminal_matrix[new_state[0]][new_state[1]], \
+                       self.reward_matrix[new_state[0]][new_state[1]]
         except IndexError:
-            return state
+            return state, state_terminal, state_reward
 
     def show_matrices(self):
-        names = ["Terminal matrix:", "Reward matrix:", "Value matrix:"]
-        matrices = [self.terminal_matrix, self.reward_matrix, self.value_matrix]
+        names = ["Terminal matrix:", "Reward matrix:"]
+        matrices = [self.terminal_matrix, self.reward_matrix]
         for i in range(len(matrices)):
             print(f"\n{names[i]}")
             for row in matrices[i]:

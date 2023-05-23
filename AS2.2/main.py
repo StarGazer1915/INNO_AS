@@ -11,15 +11,22 @@ if __name__ == "__main__":
             [-1, -1, -1, -1],
             [[10, True], -2, -1, -1]
         ], dtype=object)
-    start_position = [3, 2]
+    starting_state = [3, 2]
 
-    m0 = Maze(maze_matrix, start_position)
-    p0 = Policy("random", 1.0)
-    a0 = Agent(m0, p0)
+    policy_matrix = np.array([
+            ['R', 'R', 'R', 'T'],
+            ['RU', 'U', 'U', 'U'],
+            ['RU', 'U', 'L', 'L'],
+            ['T', 'U', 'U', 'LU']
+        ], dtype='U4')
 
-    a0.value_iteration()
+    gamma = 1.0
+    alpha = 1.0
+
+    m0 = Maze(maze_matrix, starting_state)
+    p0 = Policy("on-policy", policy_matrix)
+    a0 = Agent(m0.step, m0.actions, (m0.maze_x_size, m0.maze_y_size), starting_state, p0, gamma, alpha)
+
+    a0.td_learning()
     m0.show_matrices()
-    a0.show_policy()
-
-    # for i in range(1):
-    #     a0.act()
+    a0.show_agent_matrices()

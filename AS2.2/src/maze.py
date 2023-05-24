@@ -81,6 +81,4 @@ class Maze:
         names = ["Terminal matrix:", "Reward matrix:"]
         matrices = [self.terminal_matrix, self.reward_matrix]
         for i in range(len(matrices)):
-            print(f"\n{names[i]}")
-            for row in matrices[i]:
-                print(row)
+            print(f"\n{names[i]}\n{matrices[i]}")

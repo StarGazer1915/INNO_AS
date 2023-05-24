@@ -2,17 +2,15 @@ import numpy as np
 
 
 class Agent:
-    def __init__(self, step_func, actions, env_size, start_point, policy_object, gamma=1., alpha=1.):
+    def __init__(self, step_func, actions, env_size, start_point, policy_object):
         self.maze_step = step_func
         self.actions = actions
         self.start_position = start_point
         self.state = start_point
         self.value_matrix = np.zeros((env_size[0], env_size[1]), dtype=float)
         self.policy = policy_object
-        self.gamma = gamma
-        self.alpha = alpha
 
-    def td_learning(self):
+    def td_learning(self, gamma=1., alpha=1.):
         count_for = 0
         count_while = 0
         for i in range(10):
@@ -23,7 +21,7 @@ class Agent:
                 new_state = observation[0]
                 current_value = self.value_matrix[self.state[0]][self.state[1]]
                 next_value = self.value_matrix[new_state[0]][new_state[1]]
-                new_value = current_value + self.alpha * (observation[2] + self.gamma * next_value - current_value)
+                new_value = current_value + alpha * (observation[2] + gamma * next_value - current_value)
                 self.value_matrix[self.state[0]][self.state[1]] = new_value
 
                 self.state = new_state
@@ -55,13 +53,9 @@ class Agent:
         Prints the current generated policy to terminal.
         :@return: void
         """
-        print("\nAgent value matrix:")
-        for j in self.value_matrix:
-            print(j)
-
+        print(f"\nAgent value matrix: \n{self.value_matrix}")
         print("\nAgent policy matrix:")
         if len(self.policy.p_matrix) < 1:
             print("'There is no policy available'")
         else:
-            for i in self.policy.p_matrix:
-                print(i)
+            print(self.policy.p_matrix)

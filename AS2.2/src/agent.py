@@ -10,7 +10,7 @@ class Agent:
         self.value_matrix = np.zeros((env_size[0], env_size[1]), dtype=float)
         self.policy = policy_object
 
-    def td_learning(self, gamma=1., alpha=1.):
+    def tabular_td_zero(self, gamma=1., alpha=1.):
         count_for = 0
         count_while = 0
         for i in range(10):
@@ -33,7 +33,7 @@ class Agent:
             if np.array_equal(previous_matrix, self.value_matrix):
                 break
 
-        print(f"\nFound terminal state after '{count_for}' episodes and '{count_while}' steps")
+        print(f"\nNo more changes after '{count_for}' episodes and '{count_while}' steps")
 
     def act(self):
         """

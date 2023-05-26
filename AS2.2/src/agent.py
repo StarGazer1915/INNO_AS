@@ -11,9 +11,15 @@ class Agent:
         self.policy = policy_object
 
     def tabular_td_zero(self, gamma=1., alpha=1.):
+        """
+        Function that applies the TD(0) evaluation algorithm.
+        @param gamma: float
+        @param alpha: float
+        @return: void
+        """
         count_for = 0
         count_while = 0
-        for i in range(10):
+        while True:
             previous_matrix = self.value_matrix.copy()
             terminal = False
             while not terminal:
@@ -34,6 +40,33 @@ class Agent:
                 break
 
         print(f"\nNo more changes after '{count_for}' episodes and '{count_while}' steps")
+
+    def sarsa_td_control(self, gamma=1., alpha=1.):
+        count_for = 0
+        count_while = 0
+        while True:
+            previous_matrix = self.value_matrix.copy()
+            terminal = False
+            while not terminal:
+                observation = self.act()  # Observation return: (new_state, terminal, reward)
+                new_state = observation[0]
+                current_value = self.value_matrix[self.state[0]][self.state[1]]
+                next_value = self.value_matrix[new_state[0]][new_state[1]]
+                new_value = current_value + alpha * (observation[2] + gamma * next_value - current_value)
+                self.value_matrix[self.state[0]][self.state[1]] = new_value
+
+                self.state = new_state
+                terminal = observation[1]
+                count_while += 1
+
+            count_for += 1
+            self.state = self.start_position
+            if np.array_equal(previous_matrix, self.value_matrix):
+                break
+
+        print(f"\nNo more changes after '{count_for}' episodes and '{count_while}' steps")
+
+
 
     def act(self):
         """

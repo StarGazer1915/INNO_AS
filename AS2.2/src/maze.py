@@ -1,5 +1,5 @@
 import numpy as np
-from random import randrange
+
 
 class Maze:
     def __init__(self, maze_matrix, start_point):

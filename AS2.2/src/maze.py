@@ -54,28 +54,32 @@ class Maze:
 
         return neighbouring_state_coordinates
 
-    def step(self, state, action):
+    def step(self, state, chosen_action):
         """
         This function simulates the agent taking a step inside the maze environment
         and getting a new state based on its previous state and its chosen action.
         Should the action result in treading outside the bounds of the maze environment
         then the function will make the agent stay on the same state (coordinate).
         @param state: list [y, x]
-        @param action: list [y, x]
-        @return: list [y, x], bool
+        @param chosen_action: str
+        @return: (list [y, x], bool, float, str)
         """
-        new_state = [state[0] + action[0], state[1] + action[1]]
         state_terminal = self.terminal_matrix[state[0]][state[1]]
         state_reward = self.reward_matrix[state[0]][state[1]]
-        try:
-            check_if_inside_maze = self.reward_matrix[new_state[0]][new_state[1]]
-            if new_state[0] < 0 or new_state[1] < 0:
-                return state, state_terminal, state_reward
-            else:
-                return new_state, self.terminal_matrix[new_state[0]][new_state[1]], \
-                       self.reward_matrix[new_state[0]][new_state[1]]
-        except IndexError:
-            return state, state_terminal, state_reward
+        if chosen_action != "T":
+            action = self.actions[chosen_action]
+            new_state = [state[0] + action[0], state[1] + action[1]]
+            try:
+                check_if_inside_maze = self.reward_matrix[new_state[0]][new_state[1]]
+                if new_state[0] < 0 or new_state[1] < 0:
+                    return state, state_terminal, state_reward, action
+                else:
+                    return new_state, self.terminal_matrix[new_state[0]][new_state[1]], \
+                           self.reward_matrix[new_state[0]][new_state[1]], action
+            except IndexError:
+                return state, state_terminal, state_reward, action
+        else:
+            return state, state_terminal, state_reward, [0, 0]
 
     def show_matrices(self):
         names = ["Terminal matrix:", "Reward matrix:"]

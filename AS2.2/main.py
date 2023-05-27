@@ -21,12 +21,14 @@ if __name__ == "__main__":
             ['T', 'U', 'U', 'LU']
         ], dtype='U4')
 
-    gamma = 0.5
+    gamma = 1.0
     alpha = 1.0
     epsilon = 0.1
-
     m0 = Maze(maze_matrix, starting_state)
-    p0 = Policy("on-policy + epsilon", policy_matrix, epsilon)
+
+    # p0 = Policy("on-policy", (m0.maze_x_size, m0.maze_y_size), policy_matrix, epsilon)  # <-- for TD(0)
+    p0 = Policy("on-policy + epsilon", (m0.maze_x_size, m0.maze_y_size), None, epsilon)  # <-- for SARSA
+
     a0 = Agent(m0.step, m0.actions, (m0.maze_x_size, m0.maze_y_size), starting_state, p0)
 
     # a0.tabular_td_zero(gamma, alpha)

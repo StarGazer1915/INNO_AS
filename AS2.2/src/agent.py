@@ -68,12 +68,14 @@ class Agent:
             while not terminal:
                 if not action:
                     action = self.policy.select_action(list(self.actions.keys()), self.state)
-                observation = self.act(self.state, action)  # Observation return: (new_state, terminal, reward, action)
+                observation = self.act(self.state, action)  # Observation return: (new_state, terminal, reward)
                 state_prime = observation[0]
+                if observation[1]:
+                    self.policy.p_matrix[state_prime[0]][state_prime[1]] = "T"
                 self.reward_matrix[state_prime[0]][state_prime[1]] = observation[2]
                 action_prime = self.policy.select_action(list(self.actions.keys()), state_prime)
 
-                if not observation[1]:
+                if action_prime != "T":
                     current_value = self.value_matrix[self.state[0]][self.state[1]][action]
                     next_value = self.value_matrix[state_prime[0]][state_prime[1]][action_prime]
                     new_value = current_value + alpha * (observation[2] + gamma * next_value - current_value)
@@ -86,8 +88,8 @@ class Agent:
                     terminal = observation[1]
                 else:
                     self.value_matrix[state_prime[0]][state_prime[1]] = {"L": 0, "R": 0, "U": 0, "D": 0}
-                    self.state = state_prime
                     self.policy.p_matrix[state_prime[0]][state_prime[1]] = "T"
+                    self.state = state_prime
                     terminal = observation[1]
                 count_s += 1
 
@@ -105,27 +107,27 @@ class Agent:
         """
         return self.maze_step(current_state, chosen_action)
 
-    def update_policy(self, pos):
-        """
-        @param pos: list [y, x]
-        """
-        best = []
-        highest_value = 0.
-        d = self.value_matrix[pos[0]][pos[1]]
-        print(f"dict = {d}, best = {max(d, key=d.get)}")
-
-        # for nb in neighbours:
-        #     nb_value = self.value_matrix[nb[0][0]][nb[0][1]]
-        #     nb_reward = self.reward_matrix[nb[0][0]][nb[0][1]]
-        #     nb_action_value = nb_value + nb_reward
-        #     if nb_action_value > highest_value:
-        #         best = []
-        #         highest_value = nb_action_value
-        #         best.append(nb)
-        #     elif nb_action_value == highest_value:
-        #         best.append(nb)
-
-        self.policy.p_matrix[pos[0]][pos[1]] = "".join([i[1] for i in best])
+    # def update_policy(self, pos):
+    #     """
+    #     @param pos: list [y, x]
+    #     """
+    #     best = []
+    #     highest_value = 0.
+    #     d = self.value_matrix[pos[0]][pos[1]]
+    #     print(f"dict = {d}, best = {max(d, key=d.get)}")
+    #
+    #     # for nb in neighbours:
+    #     #     nb_value = self.value_matrix[nb[0][0]][nb[0][1]]
+    #     #     nb_reward = self.reward_matrix[nb[0][0]][nb[0][1]]
+    #     #     nb_action_value = nb_value + nb_reward
+    #     #     if nb_action_value > highest_value:
+    #     #         best = []
+    #     #         highest_value = nb_action_value
+    #     #         best.append(nb)
+    #     #     elif nb_action_value == highest_value:
+    #     #         best.append(nb)
+    #
+    #     self.policy.p_matrix[pos[0]][pos[1]] = "".join([i[1] for i in best])
 
     def show_agent_matrices(self):
         """

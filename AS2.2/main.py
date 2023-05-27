@@ -32,7 +32,7 @@ if __name__ == "__main__":
     a0 = Agent(m0.step, m0.actions, (m0.maze_x_size, m0.maze_y_size), starting_state, p0)
 
     # a0.tabular_td_zero(gamma, alpha)
-    a0.sarsa_td_control(20000, gamma, alpha)
+    a0.sarsa_td_control(10000, gamma, alpha)
 
     # m0.show_matrices()
     a0.show_agent_matrices()

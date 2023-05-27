@@ -72,14 +72,14 @@ class Maze:
             try:
                 check_if_inside_maze = self.reward_matrix[new_state[0]][new_state[1]]
                 if new_state[0] < 0 or new_state[1] < 0:
-                    return state, state_terminal, state_reward, action
+                    return state, state_terminal, state_reward
                 else:
                     return new_state, self.terminal_matrix[new_state[0]][new_state[1]], \
-                           self.reward_matrix[new_state[0]][new_state[1]], action
+                           self.reward_matrix[new_state[0]][new_state[1]]
             except IndexError:
-                return state, state_terminal, state_reward, action
+                return state, state_terminal, state_reward
         else:
-            return state, state_terminal, state_reward, [0, 0]
+            return state, state_terminal, state_reward
 
     def show_matrices(self):
         names = ["Terminal matrix:", "Reward matrix:"]

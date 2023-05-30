@@ -52,10 +52,87 @@ class Agent:
             reward_row = []
             value_row = []
             for x in range(self.env_size[1]):
-                value_row.append({"L": np.random.choice(40),
-                            "R": np.random.choice(40),
-                            "U": np.random.choice(40),
-                            "D": np.random.choice(40)})
+                # np.random.choice(40)
+                value_row.append({"L": np.random.choice(40), "R": np.random.choice(40),
+                                  "U": np.random.choice(40), "D": np.random.choice(40)})
+                reward_row.append(0)
+            self.reward_matrix.append(reward_row)
+            self.value_matrix.append(value_row)
+
+        count_e = 0
+        count_s = 0
+        for i in range(episodes):
+            available_actions = list(self.actions.keys())
+            action = self.policy.select_action(available_actions, self.state,
+                                               self.value_matrix[self.state[0]][self.state[1]])
+            while True:
+                observation = self.act(self.state, action)  # Observation return: (new_state, terminal, reward)
+                state_prime = observation[0]
+                action_prime = self.policy.select_action(available_actions, state_prime,
+                                                         self.value_matrix[state_prime[0]][state_prime[1]])
+                current_value = self.value_matrix[self.state[0]][self.state[1]][action]
+                value_prime = self.value_matrix[state_prime[0]][state_prime[1]][action_prime]
+
+                print(f"observation: {observation}")
+                print(f"state_prime: {state_prime}, action: {action}, action_prime: {action_prime}")
+                print(f"current_value: {current_value}, value_prime: {value_prime}")
+
+                new_value = current_value + alpha * (observation[2] + gamma * value_prime - current_value)
+                print(f"\nnew_value = current_value + alpha * (observation[2] + gamma * value_prime - current_value)")
+                print(f"{new_value} = {current_value} + {alpha} * ({observation[2]} + {gamma} * {value_prime} - {current_value})")
+
+                ch1 = 0
+
+
+
+                break
+
+
+
+
+
+
+
+                # self.reward_matrix[state_prime[0]][state_prime[1]] = observation[2]
+                # action_prime = self.policy.select_action(available_actions, state_prime)
+                #
+                # if action_prime != "T":
+                #     current_value = self.value_matrix[self.state[0]][self.state[1]][action]  # Q(S, A)
+                #     next_value = self.value_matrix[state_prime[0]][state_prime[1]][action_prime]  # Q(S', A')
+                #
+                #     new_value = current_value + alpha * (observation[2] + gamma * next_value - current_value)
+                #     self.value_matrix[self.state[0]][self.state[1]][action] = new_value
+                #
+                #     directions = self.value_matrix[self.state[0]][self.state[1]]
+                #     self.policy.p_matrix[self.state[0]][self.state[1]] = max(directions, key=directions.get)
+                #     self.state = state_prime
+                #     action = action_prime
+                # else:
+                #     # self.value_matrix[self.state[0]][self.state[1]][action] = observation[2]
+                #     self.value_matrix[state_prime[0]][state_prime[1]] = {"L": 0, "R": 0, "U": 0, "D": 0}
+                #     self.policy.p_matrix[state_prime[0]][state_prime[1]] = "T"
+                #     self.state = state_prime
+
+                if observation[1]:
+                    self.policy.p_matrix[state_prime[0]][state_prime[1]] = "T"
+                    break
+
+                count_s += 1
+
+            count_e += 1
+            self.state = self.start_position
+
+        print(f"\nDone after '{count_e}' episodes and '{count_s}' steps")
+
+    def q_learning(self, episodes=1, gamma=1., alpha=1.):
+        self.reward_matrix = []
+        self.value_matrix = []
+        for y in range(self.env_size[0]):
+            reward_row = []
+            value_row = []
+            for x in range(self.env_size[1]):
+                # np.random.choice(40)
+                value_row.append({"L": 0, "R": 0, "U": 0, "D": 0})
                 reward_row.append(0)
             self.reward_matrix.append(reward_row)
             self.value_matrix.append(value_row)
@@ -106,28 +183,6 @@ class Agent:
         :@return: void
         """
         return self.maze_step(current_state, chosen_action)
-
-    # def update_policy(self, pos):
-    #     """
-    #     @param pos: list [y, x]
-    #     """
-    #     best = []
-    #     highest_value = 0.
-    #     d = self.value_matrix[pos[0]][pos[1]]
-    #     print(f"dict = {d}, best = {max(d, key=d.get)}")
-    #
-    #     # for nb in neighbours:
-    #     #     nb_value = self.value_matrix[nb[0][0]][nb[0][1]]
-    #     #     nb_reward = self.reward_matrix[nb[0][0]][nb[0][1]]
-    #     #     nb_action_value = nb_value + nb_reward
-    #     #     if nb_action_value > highest_value:
-    #     #         best = []
-    #     #         highest_value = nb_action_value
-    #     #         best.append(nb)
-    #     #     elif nb_action_value == highest_value:
-    #     #         best.append(nb)
-    #
-    #     self.policy.p_matrix[pos[0]][pos[1]] = "".join([i[1] for i in best])
 
     def show_agent_matrices(self):
         """

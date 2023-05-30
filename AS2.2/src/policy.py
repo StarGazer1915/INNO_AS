@@ -11,12 +11,13 @@ class Policy:
             self.p_matrix = p_matrix
         self.epsilon = epsilon
 
-    def select_action(self, actions, current_state):
+    def select_action(self, actions, current_state, current_value):
         """
         This function decides the action that the agent is going
         to take within the maze environment.
         @param actions: nested list
         @param current_state: list [y, x]
+        @param current_value: float or dict
         @return: list [y, x]
         """
         actions = np.array(actions)  # array(['L', 'R', 'U', 'D'])
@@ -26,20 +27,11 @@ class Policy:
         elif self.type.lower() == "on-policy":
             return self.p_matrix[current_state[0]][current_state[1]]
 
-        elif self.type.lower() == "on-policy + epsilon":
-            p_action = self.p_matrix[current_state[0]][current_state[1]]
-            if p_action != "T":
-                e_chance = self.epsilon / len(actions)
-                rest_chance = 1 - self.epsilon
-                probabilities = np.zeros((len(actions))) + e_chance
-                if len(p_action) == 1:  # If policy only gives a single direction
-                    probabilities[actions == p_action] += rest_chance
-                    return np.random.choice(actions, 1, p=probabilities)[0]
-                elif len(p_action) > 1:  # If policy gives multiple directions
-                    for act in p_action:
-                        probabilities[actions == act] += rest_chance / len(p_action)
-                    return np.random.choice(actions, 1, p=probabilities)[0]
-                else:  # If policy has no existing direction to give
-                    return np.random.choice(actions, 1)[0]
+        elif self.type.lower() == "on-policy + epsilon-greedy":
+            greedy_choice = max(current_value, key=current_value.get)
+            chance_threshold = 1.0 - self.epsilon
+            chance = (np.random.randint(100, size=1) / 100)[0]
+            if chance <= chance_threshold:
+                return greedy_choice
             else:
-                return "T"
+                return np.random.choice(actions, 1)[0]

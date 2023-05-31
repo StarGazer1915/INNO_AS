@@ -25,7 +25,7 @@ class Agent:
             terminal = False
             while not terminal:
                 action = self.policy.select_action(self.state)
-                result = self.maze_step(self.state, action)  # coordinate, reward, terminal
+                result = self.maze_step(self.state, action)  # prime_coordinate, prime_reward, prime_terminal
                 current_pos, state_prime_pos = str(self.state), str(result[0])
                 self.add_to_dict_if_needed(current_pos, state_prime_pos)
 

@@ -10,7 +10,7 @@ class Agent:
         self.state_dict = {}
         self.policy = policy_object
 
-    def sarsa_td_control(self, episodes=1, gamma=1., alpha=1.):
+    def q_learning(self, episodes=1, gamma=1., alpha=1.):
         """
         Function that applies the SARSA (on-policy TD control) algorithm.
         @param episodes: float
@@ -22,23 +22,26 @@ class Agent:
         count_s = 0
         available_actions = list(self.actions.keys())
         self.add_to_dict_if_needed(self.start_position)
-        start_state_q = self.state_dict[str(self.state)]
         for i in range(episodes):
             terminal = False
-            action = self.policy.select_action(available_actions, start_state_q)
             while not terminal:
+                action = self.policy.select_action(available_actions, self.state_dict[str(self.state)])
                 result = self.maze_step(self.state, action)  # prime_coordinate, prime_reward, prime_terminal
                 self.add_to_dict_if_needed([self.state, result[0]])
-                prime_coordinate = str(result[0])
-                action_prime = self.policy.select_action(available_actions, self.state_dict[prime_coordinate])
                 self.update_policy(self.state, result[0], result[2], action)
 
                 qsa = self.state_dict[str(self.state)][action]
-                prime_qsa = self.state_dict[prime_coordinate][action_prime]
+                prime_state_qvalues = list(self.state_dict[str(result[0])].values())
+                highest = max(prime_state_qvalues)
+                maximums = []
+                for val in prime_state_qvalues:
+                    if val >= highest:
+                        maximums.append(val)
+
+                prime_qsa = max(maximums)
                 self.state_dict[str(self.state)][action] = qsa + alpha * (result[1] + gamma * prime_qsa - qsa)
 
                 self.state = result[0]
-                action = action_prime
                 terminal = result[2]
                 count_s += 1
 

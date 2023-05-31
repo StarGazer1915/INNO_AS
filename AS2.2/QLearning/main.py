@@ -23,10 +23,10 @@ if __name__ == "__main__":
     m0 = Maze(maze_matrix, starting_state)
     maze_size = (m0.maze_x_size, m0.maze_y_size)
 
-    p0 = Policy("SARSA", maze_size, np.array([]), epsilon)
+    p0 = Policy(maze_size, np.array([]), epsilon)
     a0 = Agent(m0.step, m0.actions, maze_size, starting_state, p0)
 
-    a0.sarsa_td_control(250000, gamma, alpha)
+    a0.q_learning(250000, gamma, alpha)
 
     a0.show_agent_matrices()
 

@@ -14,7 +14,6 @@ if __name__ == "__main__":
             [[10, True], -2, -1, -1]
         ], dtype=object)
     starting_state = [3, 2]
-
     policy_matrix = np.array([
             ['R', 'R', 'R', 'T'],
             ['RU', 'U', 'U', 'U'],
@@ -26,17 +25,16 @@ if __name__ == "__main__":
     alpha = 1.0
     epsilon = 0.1
     m0 = Maze(maze_matrix, starting_state)
-    maze_size = (m0.maze_x_size, m0.maze_y_size)
 
-    p0 = Policy("TD(0)", maze_size, policy_matrix, epsilon)
-    # p0 = Policy("SARSA", maze_size, None, epsilon)
+    # p0 = Policy("TD(0)", (m0.maze_x_size, m0.maze_y_size), policy_matrix, epsilon)  # <-- for TD(0)
+    p0 = Policy("SARSA", (m0.maze_x_size, m0.maze_y_size), None, epsilon)  # <-- for SARSA
 
-    a0 = Agent(m0.step, m0.actions, maze_size, starting_state, p0)
+    a0 = Agent(m0.step, m0.actions, (m0.maze_x_size, m0.maze_y_size), starting_state, p0)
 
-    a0.tabular_td_zero(50, gamma, alpha)
-    # a0.sarsa_td_control(50000, gamma, alpha)
+    # a0.tabular_td_zero(gamma, alpha)
+    a0.sarsa_td_control(50000, gamma, alpha)
 
-    m0.show_td()
-    # a0.show_agent_matrices()
+    # m0.show_matrices()
+    a0.show_agent_matrices()
 
     print(f"\nTotal execution time (seconds): {time.perf_counter() - start_time:0.4f}")

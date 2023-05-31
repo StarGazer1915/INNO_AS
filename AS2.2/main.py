@@ -36,7 +36,7 @@ if __name__ == "__main__":
     a0.tabular_td_zero(50, gamma, alpha)
     # a0.sarsa_td_control(50000, gamma, alpha)
 
-    m0.show_td()
-    # a0.show_agent_matrices()
+    m0.show_td()  # for TD(0)
+    # a0.show_agent_matrices()  # for SARSA and Q-Learning
 
     print(f"\nTotal execution time (seconds): {time.perf_counter() - start_time:0.4f}")

@@ -27,7 +27,7 @@ class Agent:
             while not terminal:
                 action = self.policy.select_action(list(self.actions.keys()), self.state)
                 result = self.maze_step(self.state, action[0])
-                self.check_state_matrix_and_policy(result)
+                self.check_state_matrix(result)
 
                 current_pos, state_prime_pos = str(result[0].state_coordinate), str(result[1].state_coordinate)
                 current_state_value = self.state_matrix[current_pos].value
@@ -100,16 +100,18 @@ class Agent:
     #
     #     print(f"\nDone after '{count_e}' episodes and '{count_s}' steps")
 
-    def check_state_matrix_and_policy(self, action_result):
-        current_pos = str(action_result[0].state_coordinate)
-        if current_pos not in self.state_matrix:
-            self.state_matrix[current_pos] = action_result[0]
+    def check_state_matrix(self, action_result):
+        current_pos = action_result[0].state_coordinate
+        if str(current_pos) not in self.state_matrix:
+            self.state_matrix[str(current_pos)] = action_result[0]
 
-        state_prime_pos = str(action_result[1].state_coordinate)
-        if state_prime_pos not in self.state_matrix:
-            self.state_matrix[state_prime_pos] = action_result[1]
+        state_prime_pos = action_result[1].state_coordinate
+        if str(state_prime_pos) not in self.state_matrix:
+            self.state_matrix[str(state_prime_pos)] = action_result[1]
 
-        self.policy.p_matrix[current_pos[0]][state[1]] = action
+    def update_policy(self, action_result):
+        current_pos = action_result[0].state_coordinate
+        self.policy.p_matrix[current_pos[0]][current_pos[1]] = action_result
 
     def show_agent_matrices(self):
         """
@@ -117,22 +119,28 @@ class Agent:
         :@return: void
         """
         print(f"\nAgent value matrix: ")
-        if type(self.state_matrix[0][0]) == dict:
-            for r in self.state_matrix:
-                for d in r:
-                    for k in d:
-                        d[k] = round(d[k], 2)
-            for row in self.state_matrix:
+        if self.state_matrix[str(self.start_position)].q_table is not None:
+            for s in self.state_matrix:
+                pos = s.state_coordinate
+                for k in s.q_table:
+                    s.q_table[k] = round(s.q_table[k], 2)
+                    self.state_matrix[str(pos)].q_table = s.q_table
+            for state in self.state_matrix:
                 line = ""
-                for d in row:
-                    values = list(d.values())
-                    line += "{0:6}, {1:6}, {2:6}, {3:6} | ".format(values[0], values[1], values[2], values[3])
+                for v in list(state.q_table.values()):
+                    line += "{0:6}, ".format(v)
+                line += "| "
                 print(line)
         else:
-            print(self.state_matrix)
+            for i in range(self.env_size[0]):
+                line = ""
+                for j in range(self.env_size[1]):
+                    line += "{0:6}, ".format(self.state_matrix[f"[{i}, {j}]"].value)
+                line += "| "
+                print(line)
 
-        print("\nAgent policy matrix:")
-        if len(self.policy.p_matrix) < 1:
-            print("'There is no policy available'")
-        else:
-            print(self.policy.p_matrix)
+        # print("\nAgent policy matrix:")
+        # if len(self.policy.p_matrix) < 1:
+        #     print("'There is no policy available'")
+        # else:
+        #     print(self.policy.p_matrix)

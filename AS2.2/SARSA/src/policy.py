@@ -31,7 +31,7 @@ class Policy:
                     best.append(act)
 
             best_choice = choice(best)
-            if np.random.random() >= self.epsilon:
+            if np.random.random() <= self.epsilon:
                 return choice(actions)
             else:
                 return best_choice

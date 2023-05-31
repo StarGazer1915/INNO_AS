@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     gamma = 1.0
     alpha = 0.3
-    epsilon = 0.9
+    epsilon = 0.1
 
     m0 = Maze(maze_matrix, starting_state)
     maze_size = (m0.maze_x_size, m0.maze_y_size)

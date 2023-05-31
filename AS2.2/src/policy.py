@@ -12,13 +12,13 @@ class Policy:
             self.p_matrix = p_matrix
         self.epsilon = epsilon
 
-    def select_action(self, actions, current_state, current_value=None):
+    def select_action(self, actions, current_state, q_table=None):
         """
         This function decides the action that the agent is going
         to take within the maze environment.
-        @param actions: nested list
+        @param actions: list
         @param current_state: list [y, x]
-        @param current_value: float or dict
+        @param q_table: float or dict
         @return: list [y, x]
         """
         actions = np.array(actions)  # array(['L', 'R', 'U', 'D'])
@@ -29,14 +29,18 @@ class Policy:
             return self.p_matrix[current_state[0]][current_state[1]]
 
         elif self.type.lower() == "sarsa":
-            all_values = list(current_value.values())
-            if all_values.count(all_values[0]) != len(all_values):
-                greedy_choice = max(current_value, key=current_value.get)
-                chance_threshold = 1.0 - self.epsilon
-                chance = (np.random.randint(100, size=1) / 100)[0]
-                if chance <= chance_threshold:
-                    return greedy_choice, greedy_choice
-                else:
-                    return choice(actions), greedy_choice
+            all_values = list(q_table.values())
+            if all_values.count(all_values[0]) == len(all_values):
+                return choice(actions)
             else:
-                return choice(list(current_value.keys()))
+                best = []
+                highest = max(all_values)
+                for act in actions:
+                    if q_table[act] >= highest:
+                        best.append(act)
+
+                best_choice = choice(best)
+                if np.random.random() >= self.epsilon:
+                    return choice(actions)
+                else:
+                    return best_choice

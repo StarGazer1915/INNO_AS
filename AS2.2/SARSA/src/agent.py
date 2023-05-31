@@ -12,7 +12,7 @@ class Agent:
 
     def sarsa_td_control(self, episodes=1, gamma=1., alpha=1.):
         """
-        Function that applies the SARSA algorithm.
+        Function that applies the SARSA (on-policy TD control) algorithm.
         @param episodes: float
         @param gamma: float
         @param alpha: float
@@ -63,12 +63,24 @@ class Agent:
                 self.state_dict[str(state_coordinates)] = {"L": 0, "R": 0, "U": 0, "D": 0}
 
     def update_policy(self, current_pos, state_prime_pos, state_prime_terminal, chosen_action):
+        """
+        Updates the policy matrix with the chosen action of the agent.
+        @param current_pos: list [y, x]
+        @param state_prime_pos: list [y, x]
+        @param state_prime_terminal: bool
+        @param chosen_action: str
+        @return: void
+        """
         if state_prime_terminal:
             self.policy.p_matrix[state_prime_pos[0]][state_prime_pos[1]] = "T"
         self.policy.p_matrix[current_pos[0]][current_pos[1]] = chosen_action
 
     def show_agent_matrices(self):
-        print(f"\nAgent value matrix: ")
+        """
+        Visualization function for the command line.
+        @return: void
+        """
+        print(f"\nAgent Q function of state_dict: ")
         if len(self.state_dict) != 0:
             for i in range(self.env_size[0]):
                 line = "|"

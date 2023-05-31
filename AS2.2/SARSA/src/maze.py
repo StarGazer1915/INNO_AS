@@ -15,8 +15,6 @@ class Maze:
             "U": [-1, 0],   # Up
             "D": [+1, 0]    # Down
             }
-        self.action_values = list(self.actions.values())
-        self.action_keys = list(self.actions.keys())
         self.setup_environment()
 
     def setup_environment(self):
@@ -58,10 +56,3 @@ class Maze:
                 return [prime_coordinate, prime_reward, prime_terminal]
         except IndexError:
             return [coordinate, current_reward, current_terminal]
-
-    def show_td(self):
-        for row in self.environment:
-            line = ""
-            for state in row:
-                line += "{0:4} ({1:4}, {2:1}) | ".format(state.value, state.reward, state.terminal)
-            print(line)

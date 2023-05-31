@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     starting_state = [3, 2]
 
-    gamma = 1.0
+    gamma = 0.9
     alpha = 0.3
     epsilon = 0.1
 

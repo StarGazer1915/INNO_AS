@@ -15,8 +15,6 @@ class Maze:
             "U": [-1, 0],   # Up
             "D": [+1, 0]    # Down
             }
-        self.action_values = list(self.actions.values())
-        self.action_keys = list(self.actions.keys())
         self.setup_environment()
 
     def setup_environment(self):
@@ -34,33 +32,27 @@ class Maze:
                 else:
                     self.environment[row][col] = State([row, col], self.maze_matrix[row][col])
 
-    def step(self, state_coordinate, chosen_action):
+    def step(self, coordinate, chosen_action):
         """
         This function simulates the agent taking a step inside the maze environment
         and getting a new state based on its previous state and its chosen action.
         Should the action result in treading outside the bounds of the maze environment
         then the function will make the agent stay on the same state (coordinate).
-        @param state_coordinate: list [y, x]
+        @param coordinate: list [y, x]
         @param chosen_action: str
-        @return: (list [y, x], bool, float)
+        @return: list [y, x], float, bool
         """
         action = self.actions[chosen_action]
-        new_state_coordinate = [state_coordinate[0] + action[0], state_coordinate[1] + action[1]]
+        prime_coordinate = [coordinate[0] + action[0], coordinate[1] + action[1]]
+        current_reward = self.environment[coordinate[0]][coordinate[1]].reward
+        current_terminal = self.environment[coordinate[0]][coordinate[1]].terminal
         try:
-            check_if_inside_maze = self.environment[new_state_coordinate[0]][new_state_coordinate[1]]
-            if new_state_coordinate[0] < 0 or new_state_coordinate[1] < 0:
-                return self.environment[state_coordinate[0]][state_coordinate[1]]
+            check_if_inside_maze = self.environment[prime_coordinate[0]][prime_coordinate[1]]
+            if prime_coordinate[0] < 0 or prime_coordinate[1] < 0:
+                return [coordinate, current_reward, current_terminal]
             else:
-                return self.environment[new_state_coordinate[0]][new_state_coordinate[1]]
+                prime_reward = self.environment[prime_coordinate[0]][prime_coordinate[1]].reward
+                prime_terminal = self.environment[prime_coordinate[0]][prime_coordinate[1]].terminal
+                return [prime_coordinate, prime_reward, prime_terminal]
         except IndexError:
-            return self.environment[state_coordinate[0]][state_coordinate[1]]
-
-    def get_start(self):
-        return self.environment[self.start_point[0]][self.start_point[1]]
-
-    def show_td(self):
-        for row in self.environment:
-            line = ""
-            for state in row:
-                line += "{0:4} ({1:4}, {2:1}) | ".format(state.value, state.reward, state.terminal)
-            print(line)
+            return [coordinate, current_reward, current_terminal]

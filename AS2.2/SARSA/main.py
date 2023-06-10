@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     starting_state = [3, 2]
 
-    gamma = 0.5
-    alpha = 0.3
+    gamma = 1.0
+    alpha = 0.1
     epsilon = 0.1
 
     m0 = Maze(maze_matrix, starting_state)

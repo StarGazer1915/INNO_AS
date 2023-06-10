@@ -3,8 +3,8 @@ from random import choice
 
 
 class Policy:
-    def __init__(self, func_approx, epsilon):
-        self.neural_net = func_approx
+    def __init__(self, neural_network, epsilon):
+        self.nn = neural_network
         self.epsilon = epsilon
 
     def select_action(self, available_actions, act_values):

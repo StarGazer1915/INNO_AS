@@ -14,17 +14,13 @@ class Policy:
         @param act_values: dict
         @return: ?
         """
-        all_values = list(act_values.values())
-        if all_values.count(all_values[0]) == len(all_values):
+        if act_values.count(act_values[0]) == len(act_values):
             return choice(available_actions)
         else:
-            best = []
-            highest = max(all_values)
-            for act in available_actions:
-                if act_values[act] >= highest:
-                    best.append(act)
-
+            highest = max(act_values)
+            best = [act for act in range(len(available_actions)) if act_values[act] >= highest]
             best_choice = choice(best)
+
             if np.random.random() <= self.epsilon:
                 return choice(available_actions)
             else:

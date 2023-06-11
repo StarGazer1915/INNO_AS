@@ -13,6 +13,9 @@ my_nn = Lmodel().to('cuda')
 optimizer = Adam(my_nn.parameters(), lr=0.01)
 loss_fn = nn.MSELoss()
 
+
+best = [act for act in [0, 1, 2, 3] if act_values[act] >= highest]
+
 # ===== TRAINING ===== #
 # for epoch in range(10):
 #     for batch in dataset:

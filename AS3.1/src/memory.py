@@ -1,26 +1,31 @@
 from random import sample
+from collections import deque
 
 
 class Memory:
-    def __init__(self):
-        self.deque = []
+    def __init__(self, memory_size):
+        self.memory_size = memory_size
+        self.deque = deque()
 
-    def store(self):
+    def store(self, transition):
         """
         Stores new transitions in the memory.
         @return: void
         """
-        return
+        if len(self.deque) >= self.memory_size:
+            remove_first = self.deque.popleft()
+            self.deque.append(transition)
+        else:
+            self.deque.append(transition)
 
     def sample(self, sample_size):
         """
         Takes a batch of transitions out of the memory.
-        @return: void
+        @return: list
         """
-        if len(self.deque) >= sample_size:
-            choices = sample(range(0, len(self.deque)), sample_size)
-        elif sample_size < 0:
+        if sample_size <= 0:
             return []
+        elif len(self.deque) >= sample_size:
+            return sample(self.deque, sample_size)
         else:
-            choices = sample(range(0, len(self.deque)), len(self.deque))
-        return [self.deque[:][i] for i in choices]
+            return sample(self.deque, len(self.deque))

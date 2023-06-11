@@ -1,38 +1,30 @@
-import gymnasium as gym
+import numpy as np
+from torch import from_numpy
 
 
 class Agent:
-    def __init__(self, memory, policy):
+    def __init__(self, memory, policy, decay, sample_size):
         self.memory = memory
         self.policy = policy
+        self.reward = 0.
+        self.decay = decay
+        self.sample_size = sample_size
 
-    def train(self, num_epochs, env):
-        observation, info = env.reset(seed=42)
+    def train(self, available_actions):
+        sample_batch = self.memory.sample(self.sample_size)
+        for s in sample_batch:
+            # ===== Unpack Transition items ===== #
+            action, reward, state, new_state, terminated = s[0], s[1], s[2], s[3], s[4]
+            if terminated:
+                reward = 0.
 
-        for i in range(num_epochs):
-            action = env.action_space.sample()  # this is where you would insert your policy
-            observation, reward, terminated, truncated, info = env.step(action)
-            print(f"\n1.) observation: {list(observation)}\n2.) reward: {reward}\n"
-                  f"3.) available actions: {env.action_space}\n4.) performed action: {action}\n")
-            if terminated or truncated:
-                observation, info = env.reset()
+            # ===== Calculate q values and determine action_prime ===== #
+            q_values = self.policy.nn(from_numpy(np.array(state))).tolist()
+            q_prime_values = self.policy.nn(from_numpy(np.array(new_state))).tolist()
+            action_prime = self.policy.select_action(available_actions, q_prime_values)
+            a_prime_target = reward + self.decay * q_prime_values[action_prime]
 
-            break
-
-        # ===== TRAINING ===== #
-        # for epoch in range(10):
-        #     for batch in dataset:
-        #         X,y = batch
-        #         X, y = X.to('cuda'), y.to('cuda')
-        #         yhat = my_nn(X)
-        #         loss = loss_fn(yhat, y)
-        #
-        #         # Apply backprop
-        #         optimizer.zero_grad()
-        #         loss.backward()
-        #         optimizer.step()
-        #
-        #     print(f"Epoch: {epoch} loss is {loss.item()}")
-        #
-        #     with open('model_state.pt', 'wb') as f:
-        #         save(my_nn.state_dict(), f)
+            # print(f"\nq_values: \n{q_values}")
+            # print(f"\nq_prime_values: \n{q_prime_values}")
+            # print(f"\naction_prime: {action_prime}")
+            # print(f"\n{a_prime_target} = {reward} + {self.decay} * {q_prime_values[action_prime]}")

@@ -14,17 +14,14 @@ class Policy:
         @param act_values: dict
         @return: ?
         """
-        if act_values.count(act_values[0]) == len(act_values):
+        highest = max(act_values)
+        best = [act for act in range(len(available_actions)) if act_values[act] >= highest]
+        best_choice = choice(best)
+
+        if np.random.random() <= self.epsilon:
             return choice(available_actions)
         else:
-            highest = max(act_values)
-            best = [act for act in range(len(available_actions)) if act_values[act] >= highest]
-            best_choice = choice(best)
-
-            if np.random.random() <= self.epsilon:
-                return choice(available_actions)
-            else:
-                return best_choice
+            return best_choice
 
     def decay(self):
         """

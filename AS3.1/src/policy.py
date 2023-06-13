@@ -3,8 +3,10 @@ from random import choice
 
 
 class Policy:
-    def __init__(self, neural_network, epsilon):
+    def __init__(self, neural_network, optimizer, loss_function, epsilon):
         self.nn = neural_network
+        self.opt = optimizer
+        self.loss_fn = loss_function
         self.epsilon = epsilon
 
     def select_action(self, available_actions, act_values):

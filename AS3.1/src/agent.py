@@ -3,16 +3,16 @@ from torch import FloatTensor, from_numpy
 
 
 class Agent:
-    def __init__(self, memory, policy, decay, sample_size):
+    def __init__(self, memory, policy, discount, epsilon_decay, sample_size):
         self.memory = memory
         self.policy = policy
         self.reward = 0.
-        self.decay = decay
+        self.discount = discount
+        self.epsilon_decay = epsilon_decay
         self.sample_size = sample_size
 
     def train(self, available_actions):
         sample_batch = self.memory.sample(self.sample_size)
-        losses = []
         for s in sample_batch:
             # ===== Unpack Transition items ===== #
             action, reward, state, new_state, terminated = s[0], s[1], s[2], s[3], s[4]
@@ -27,7 +27,7 @@ class Agent:
             if terminated:
                 a_prime_target = float(reward)
             else:
-                a_prime_target = float(reward + self.decay * max(q_prime_values))
+                a_prime_target = float(reward + self.discount * max(q_prime_values))
 
             # ===== Apply gradient descent ===== #
             target_values = []
@@ -40,15 +40,11 @@ class Agent:
             m_input = FloatTensor(q_values).requires_grad_()
             target = FloatTensor(target_values)
 
-            loss = self.policy.loss_fn(m_input, target)
+            loss = self.policy.loss_fn(target, m_input)
 
-            loss.backward()
             self.policy.opt.zero_grad()
+            loss.backward()
             self.policy.opt.step()
 
-            losses.append(loss.item())
-
-        return np.mean(losses)
-
-    def decay_epsilon(self, decay):
-        self.policy.epsilon *= decay
+    def decay_epsilon(self):
+        self.policy.epsilon *= self.epsilon_decay

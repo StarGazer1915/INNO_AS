@@ -1,12 +1,15 @@
 import numpy as np
 from random import choice
+from torch import nn
+from torch.optim import Adam
 
 
 class Policy:
-    def __init__(self, neural_network, optimizer, loss_function, epsilon, actions, epsilon_decay):
+    def __init__(self, neural_network, learning_rate, epsilon, actions, epsilon_decay):
         self.nn = neural_network
-        self.opt = optimizer
-        self.loss_fn = loss_function
+        self.lr = learning_rate
+        self.opt = Adam(self.nn.parameters(), lr=self.lr)
+        self.loss_fn = nn.MSELoss()
         self.epsilon = epsilon
         self.actions = actions
         self.epsilon_decay = epsilon_decay

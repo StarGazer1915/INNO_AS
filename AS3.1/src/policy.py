@@ -27,6 +27,6 @@ class Policy:
                                     device=self.device)
 
     def decay(self):
-        self.epsilon = (self.epsilon * self.epsilon_decay)
+        self.epsilon *= self.epsilon_decay
         if self.epsilon < self.epsilon_end:
             self.epsilon = self.epsilon_end

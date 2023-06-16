@@ -1,3 +1,9 @@
+# NOTE:
+# This file contains the same code as in jupyter-notebook
+# but is missing the visualizations. Run this file if you
+# don't have access to jupyter-notebook or just want to
+# test the functionality.
+
 import numpy as np
 import gymnasium as gym
 from random import randint
@@ -19,17 +25,17 @@ device = (
 print(f"Using {device} device")
 
 num_epochs = 1000
-max_steps = 1000
+max_steps = 2000
 avg_reward_threshold = 200
 
-learning_rate = 0.001
+learning_rate = 0.0005
 gamma = 0.99
 epsilon_start = 1.0
 epsilon_end = 0.01
 epsilon_decay = 10000
 
-memory_size = 32000
-sample_size = 64
+memory_size = 10000
+sample_size = 32
 
 Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
@@ -59,8 +65,6 @@ p1 = Policy(training_neural_net, device, env.action_space, epsilon_start, epsilo
 # The Agent class
 a1 = Agent(me1, p1, device, sample_size, num_epochs, max_steps, learning_rate, gamma)
 
-a0.policy.neural_net.train(mode=False)
-
 for i in range(10):  # 10 epochs to fill memory
     state = torch.tensor(env.reset(seed=randint(0, 1000))[0], dtype=torch.float32, device=device).unsqueeze(0)
     for step in range(max_steps):
@@ -86,12 +90,16 @@ for i in range(10):  # 10 epochs to fill memory
 env.close()
 
 print(len(a0.memory.deque))
+a1.memory.deque = me0.deque.copy()
+print(len(a1.memory.deque))
 
-env = gym.make("LunarLander-v2", render_mode="human")
+env = gym.make("LunarLander-v2", render_mode="rgb_array")
 
-# try:
-a1.policy.neural_net.train(mode=True)
+a1.memory.deque = me0.deque.copy()
+a1.policy.neural_net.train()
 
+all_epoch_sums = []
+run_averages = []
 rewards = []
 for i in range(num_epochs + 1):
     epoch_reward = 0
@@ -122,13 +130,17 @@ for i in range(num_epochs + 1):
             a1.policy.step_count = 0
             break
 
+    all_epoch_sums.append(epoch_reward)
     rewards.append(epoch_reward)
 
-    # ===== Visualization ===== #
+    # ===== Visualization and Model processing ===== #
     print(f"Epoch {i} | Epoch rewards: {epoch_reward} | Epsilon: {a1.policy.epsilon}")
 
     if i in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]:
+        model_scripted = torch.jit.script(a0.policy.neural_net)  # Export to TorchScript
+        model_scripted.save(f'model_export\LunarLander_scripted_{i}.pt')  # Save
         run_avg_reward = np.mean(rewards)
+        run_averages.append(run_avg_reward)
         if run_avg_reward >= 200:
             print(
                 f"\nTraining done at Epoch {i} | Average reward: {run_avg_reward} | Epsilon is now: {a1.policy.epsilon}\n")
@@ -139,6 +151,3 @@ for i in range(num_epochs + 1):
             rewards = []
 
 env.close()
-
-# except:
-#     env.close()

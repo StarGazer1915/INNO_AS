@@ -1,32 +1,32 @@
-import numpy as np
-from random import choice
+import random
+import torch
 
 
 class Policy:
-    def __init__(self, neural_network, learning_rate, epsilon, actions, epsilon_decay):
-        self.nn = neural_network
-        self.opt = None
-        self.loss_fn = None
-        self.lr = learning_rate
-        self.epsilon = epsilon
+    def __init__(self, policy_network, device, actions, epsilon_start, epsilon_end, epsilon_decay):
+        self.neural_net = policy_network
+        self.device = device
         self.actions = actions
+        self.epsilon = epsilon_start
+        self.epsilon_end = epsilon_end
         self.epsilon_decay = epsilon_decay
 
-    def select_action(self, act_values):
+    def select_action(self, state):
         """
         Decides the action that the agent is going to take.
-        @param act_values: dict
+        @param state: numpy array
         @return: int
         """
-        best_choice = choice([act for act in self.actions if act_values[act] >= max(act_values)])
-        if np.random.random() <= self.epsilon:
-            return choice(self.actions)
+        if self.epsilon > random.random():
+            self.decay()
+            return torch.tensor([self.actions.sample()], dtype=torch.int64, device=self.device)
         else:
-            return best_choice
+            with torch.no_grad():
+                self.decay()
+                return torch.tensor([self.neural_net(state).argmax()], dtype=torch.int64,
+                                    device=self.device)
 
     def decay(self):
-        """
-        Degrades epsilon over time.
-        @return: void
-        """
-        self.epsilon *= self.epsilon_decay
+        self.epsilon = (self.epsilon * self.epsilon_decay)
+        if self.epsilon < self.epsilon_end:
+            self.epsilon = self.epsilon_end

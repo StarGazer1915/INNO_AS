@@ -1,22 +1,19 @@
 from random import sample
-from collections import deque
+from collections import deque, namedtuple
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
 
 class Memory:
     def __init__(self, memory_size):
         self.memory_size = memory_size
-        self.deque = deque()
+        self.deque = deque([], maxlen=memory_size)
 
-    def store(self, transition):
+    def store(self, state, action, reward, next_state):
         """
         Stores new transitions in the memory.
         @return: void
         """
-        if len(self.deque) >= self.memory_size:
-            remove_first = self.deque.popleft()
-            self.deque.append(transition)
-        else:
-            self.deque.append(transition)
+        self.deque.append(Transition(state, action, reward, next_state))
 
     def sample(self, sample_size):
         """

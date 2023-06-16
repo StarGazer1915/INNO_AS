@@ -2,9 +2,9 @@ from torch import nn
 import torch.nn.functional as F
 
 
-class Lmodel(nn.Module):
+class DQN(nn.Module):
     def __init__(self):
-        super(Lmodel, self).__init__()
+        super().__init__()
         self.l1 = nn.Linear(8, 128)
         self.l2 = nn.Linear(128, 64)
         self.l3 = nn.Linear(64, 4)
